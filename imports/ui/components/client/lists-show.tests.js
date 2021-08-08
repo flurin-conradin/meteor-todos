@@ -12,7 +12,6 @@ import { withRenderedTemplate } from '../../test-helpers.js';
 import '../lists-show.js';
 import { Todos } from '../../../api/todos/todos.js';
 
-
 describe('Lists_show', function () {
   beforeEach(function () {
     Template.registerHelper('_', key => key);
@@ -28,8 +27,10 @@ describe('Lists_show', function () {
 
     // Create a local collection in order to get a cursor
     // Note that we need to pass the transform in so the documents look right when they come out.
-    const todosCollection = new Mongo.Collection(null, { transform: Todos._transform });
-    _.times(3, (i) => {
+    const todosCollection = new Mongo.Collection(null, {
+      transform: Todos._transform,
+    });
+    _.times(3, i => {
       const todo = Factory.build('todo', {
         listId: list._id,
         createdAt: new Date(timestamp - (3 - i)),
@@ -44,9 +45,10 @@ describe('Lists_show', function () {
       todos: todosCursor,
     };
 
-    withRenderedTemplate('Lists_show', data, (el) => {
+    withRenderedTemplate('Lists_show', data, el => {
       const todosText = todosCursor.map(t => t.text);
-      const renderedText = $(el).find('.list-items input[type=text]')
+      const renderedText = $(el)
+        .find('.list-items input[type=text]')
         .map((i, e) => $(e).val())
         .toArray();
       chai.assert.deepEqual(renderedText, todosText);

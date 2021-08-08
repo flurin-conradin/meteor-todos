@@ -9,13 +9,17 @@ import { Lists } from '../lists/lists.js';
 
 export const insert = new ValidatedMethod({
   name: 'todos.insert',
-  validate: Todos.simpleSchema().pick(['listId', 'text']).validator({ clean: true, filter: false }),
+  validate: Todos.simpleSchema()
+    .pick(['listId', 'text'])
+    .validator({ clean: true, filter: false }),
   run({ listId, text }) {
     const list = Lists.findOne(listId);
 
     if (list.isPrivate() && list.userId !== this.userId) {
-      throw new Meteor.Error('todos.insert.accessDenied',
-        'Cannot add todos to a private list that is not yours');
+      throw new Meteor.Error(
+        'todos.insert.accessDenied',
+        'Cannot add todos to a private list that is not yours'
+      );
     }
 
     const todo = {
@@ -44,13 +48,17 @@ export const setCheckedStatus = new ValidatedMethod({
     }
 
     if (!todo.editableBy(this.userId)) {
-      throw new Meteor.Error('todos.setCheckedStatus.accessDenied',
-        'Cannot edit checked status in a private list that is not yours');
+      throw new Meteor.Error(
+        'todos.setCheckedStatus.accessDenied',
+        'Cannot edit checked status in a private list that is not yours'
+      );
     }
 
-    Todos.update(todoId, { $set: {
-      checked: newCheckedStatus,
-    } });
+    Todos.update(todoId, {
+      $set: {
+        checked: newCheckedStatus,
+      },
+    });
   },
 });
 
@@ -66,13 +74,15 @@ export const updateText = new ValidatedMethod({
     const todo = Todos.findOne(todoId);
 
     if (!todo.editableBy(this.userId)) {
-      throw new Meteor.Error('todos.updateText.accessDenied',
-        'Cannot edit todos in a private list that is not yours');
+      throw new Meteor.Error(
+        'todos.updateText.accessDenied',
+        'Cannot edit todos in a private list that is not yours'
+      );
     }
 
     Todos.update(todoId, {
       $set: {
-        text: (_.isUndefined(newText) ? null : newText),
+        text: _.isUndefined(newText) ? null : newText,
       },
     });
   },
@@ -87,8 +97,10 @@ export const remove = new ValidatedMethod({
     const todo = Todos.findOne(todoId);
 
     if (!todo.editableBy(this.userId)) {
-      throw new Meteor.Error('todos.remove.accessDenied',
-        'Cannot remove todos in a private list that is not yours');
+      throw new Meteor.Error(
+        'todos.remove.accessDenied',
+        'Cannot remove todos in a private list that is not yours'
+      );
     }
 
     Todos.remove(todoId);
@@ -96,21 +108,25 @@ export const remove = new ValidatedMethod({
 });
 
 // Get list of all method names on Todos
-const TODOS_METHODS = _.pluck([
-  insert,
-  setCheckedStatus,
-  updateText,
-  remove,
-], 'name');
+const TODOS_METHODS = _.pluck(
+  [insert, setCheckedStatus, updateText, remove],
+  'name'
+);
 
 if (Meteor.isServer) {
   // Only allow 5 todos operations per connection per second
-  DDPRateLimiter.addRule({
-    name(name) {
-      return _.contains(TODOS_METHODS, name);
-    },
+  DDPRateLimiter.addRule(
+    {
+      name(name) {
+        return _.contains(TODOS_METHODS, name);
+      },
 
-    // Rate limit per connection ID
-    connectionId() { return true; },
-  }, 5, 1000);
+      // Rate limit per connection ID
+      connectionId() {
+        return true;
+      },
+    },
+    5,
+    1000
+  );
 }

@@ -46,7 +46,7 @@ describe('todos', function () {
         collector.collect(
           'todos.inList',
           { listId: publicList._id },
-          (collections) => {
+          collections => {
             chai.assert.equal(collections.todos.length, 3);
             done();
           }
@@ -57,7 +57,7 @@ describe('todos', function () {
         collector.collect(
           'todos.inList',
           { listId: publicList._id },
-          (collections) => {
+          collections => {
             chai.assert.equal(collections.todos.length, 3);
             done();
           }
@@ -68,7 +68,7 @@ describe('todos', function () {
         collector.collect(
           'todos.inList',
           { listId: privateList._id },
-          (collections) => {
+          collections => {
             chai.assert.equal(collections.todos.length, 3);
             done();
           }
@@ -79,7 +79,7 @@ describe('todos', function () {
         collector.collect(
           'todos.inList',
           { listId: privateList._id },
-          (collections) => {
+          collections => {
             chai.assert.isUndefined(collections.todos);
             done();
           }
@@ -90,7 +90,7 @@ describe('todos', function () {
         collector.collect(
           'todos.inList',
           { listId: privateList._id },
-          (collections) => {
+          collections => {
             chai.assert.isUndefined(collections.todos);
             done();
           }
@@ -99,4 +99,3 @@ describe('todos', function () {
     });
   });
 });
-

@@ -8,7 +8,7 @@ import { _ } from 'meteor/underscore';
 
 import { denodeify } from '../utils/denodeify';
 
-const createList = (userId) => {
+const createList = userId => {
   const list = Factory.create('list', { userId });
   _.times(3, () => Factory.create('todo', { listId: list._id }));
   return list;
@@ -31,7 +31,7 @@ if (Meteor.isClient) {
   // We do this so there's no contention w/ the currently tested user's connection
   const testConnection = Meteor.connect(Meteor.absoluteUrl());
 
-  const generateData = denodeify((cb) => {
+  const generateData = denodeify(cb => {
     testConnection.call('generateFixtures', cb);
   });
 

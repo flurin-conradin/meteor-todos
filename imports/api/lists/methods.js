@@ -27,15 +27,19 @@ export const makePrivate = new ValidatedMethod({
   validate: LIST_ID_ONLY,
   run({ listId }) {
     if (!this.userId) {
-      throw new Meteor.Error('lists.makePrivate.notLoggedIn',
-        'Must be logged in to make private lists.');
+      throw new Meteor.Error(
+        'lists.makePrivate.notLoggedIn',
+        'Must be logged in to make private lists.'
+      );
     }
 
     const list = Lists.findOne(listId);
 
     if (list.isLastPublicList()) {
-      throw new Meteor.Error('lists.makePrivate.lastPublicList',
-        'Cannot make the last public list private.');
+      throw new Meteor.Error(
+        'lists.makePrivate.lastPublicList',
+        'Cannot make the last public list private.'
+      );
     }
 
     Lists.update(listId, {
@@ -49,15 +53,19 @@ export const makePublic = new ValidatedMethod({
   validate: LIST_ID_ONLY,
   run({ listId }) {
     if (!this.userId) {
-      throw new Meteor.Error('lists.makePublic.notLoggedIn',
-        'Must be logged in.');
+      throw new Meteor.Error(
+        'lists.makePublic.notLoggedIn',
+        'Must be logged in.'
+      );
     }
 
     const list = Lists.findOne(listId);
 
     if (!list.editableBy(this.userId)) {
-      throw new Meteor.Error('lists.makePublic.accessDenied',
-        'You don\'t have permission to edit this list.');
+      throw new Meteor.Error(
+        'lists.makePublic.accessDenied',
+        "You don't have permission to edit this list."
+      );
     }
 
     // XXX the security check above is not atomic, so in theory a race condition could
@@ -78,8 +86,10 @@ export const updateName = new ValidatedMethod({
     const list = Lists.findOne(listId);
 
     if (!list.editableBy(this.userId)) {
-      throw new Meteor.Error('lists.updateName.accessDenied',
-        'You don\'t have permission to edit this list.');
+      throw new Meteor.Error(
+        'lists.updateName.accessDenied',
+        "You don't have permission to edit this list."
+      );
     }
 
     // XXX the security check above is not atomic, so in theory a race condition could
@@ -98,16 +108,20 @@ export const remove = new ValidatedMethod({
     const list = Lists.findOne(listId);
 
     if (!list.editableBy(this.userId)) {
-      throw new Meteor.Error('lists.remove.accessDenied',
-        'You don\'t have permission to remove this list.');
+      throw new Meteor.Error(
+        'lists.remove.accessDenied',
+        "You don't have permission to remove this list."
+      );
     }
 
     // XXX the security check above is not atomic, so in theory a race condition could
     // result in exposing private data
 
     if (list.isLastPublicList()) {
-      throw new Meteor.Error('lists.remove.lastPublicList',
-        'Cannot delete the last public list.');
+      throw new Meteor.Error(
+        'lists.remove.lastPublicList',
+        'Cannot delete the last public list.'
+      );
     }
 
     Lists.remove(listId);
@@ -115,22 +129,25 @@ export const remove = new ValidatedMethod({
 });
 
 // Get list of all method names on Lists
-const LISTS_METHODS = _.pluck([
-  insert,
-  makePublic,
-  makePrivate,
-  updateName,
-  remove,
-], 'name');
+const LISTS_METHODS = _.pluck(
+  [insert, makePublic, makePrivate, updateName, remove],
+  'name'
+);
 
 if (Meteor.isServer) {
   // Only allow 5 list operations per connection per second
-  DDPRateLimiter.addRule({
-    name(name) {
-      return _.contains(LISTS_METHODS, name);
-    },
+  DDPRateLimiter.addRule(
+    {
+      name(name) {
+        return _.contains(LISTS_METHODS, name);
+      },
 
-    // Rate limit per connection ID
-    connectionId() { return true; },
-  }, 5, 1000);
+      // Rate limit per connection ID
+      connectionId() {
+        return true;
+      },
+    },
+    5,
+    1000
+  );
 }

@@ -45,15 +45,15 @@ Meteor.startup(() => {
       },
     ];
 
-    let timestamp = (new Date()).getTime();
+    let timestamp = new Date().getTime();
 
-    data.forEach((list) => {
+    data.forEach(list => {
       const listId = Lists.insert({
         name: list.name,
         incompleteCount: list.items.length,
       });
 
-      list.items.forEach((text) => {
+      list.items.forEach(text => {
         Todos.insert({
           listId,
           text,

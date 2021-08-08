@@ -4,11 +4,8 @@ Package.describe({
   documentation: null,
 });
 
-Package.onUse(function(api) {
+Package.onUse(function (api) {
   api.versionsFrom('1.2.1');
 
-  api.use([
-    'browser-policy',
-    'force-ssl',
-  ]);
+  api.use(['browser-policy', 'force-ssl']);
 });

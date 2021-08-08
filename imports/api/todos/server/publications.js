@@ -30,10 +30,15 @@ Meteor.publishComposite('todos.inList', function todosInList(params) {
       return Lists.find(query, options);
     },
 
-    children: [{
-      find(list) {
-        return Todos.find({ listId: list._id }, { fields: Todos.publicFields });
+    children: [
+      {
+        find(list) {
+          return Todos.find(
+            { listId: list._id },
+            { fields: Todos.publicFields }
+          );
+        },
       },
-    }],
+    ],
   };
 });

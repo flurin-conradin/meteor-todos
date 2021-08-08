@@ -65,17 +65,23 @@ Template.Todos_item.events({
   // we don't flood the server with updates (handles the event at most once
   // every 300ms)
   'keyup input[type=text]': _.throttle(function todosItemKeyUpInner(event) {
-    updateText.call({
-      todoId: this.todo._id,
-      newText: event.target.value,
-    }, displayError);
+    updateText.call(
+      {
+        todoId: this.todo._id,
+        newText: event.target.value,
+      },
+      displayError
+    );
   }, 300),
 
   // handle mousedown otherwise the blur handler above will swallow the click
   // on iOS, we still require the click event so handle both
   'mousedown .js-delete-item, click .js-delete-item'() {
-    remove.call({
-      todoId: this.todo._id,
-    }, displayError);
+    remove.call(
+      {
+        todoId: this.todo._id,
+      },
+      displayError
+    );
   },
 });

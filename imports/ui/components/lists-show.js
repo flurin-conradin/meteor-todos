@@ -22,9 +22,7 @@ import {
   remove,
 } from '../../api/lists/methods.js';
 
-import {
-  insert,
-} from '../../api/todos/methods.js';
+import { insert } from '../../api/todos/methods.js';
 
 import { displayError } from '../lib/errors.js';
 
@@ -48,10 +46,13 @@ Template.Lists_show.onCreated(function listShowOnCreated() {
 
     const newName = this.$('[name=name]').val().trim();
     if (newName) {
-      updateName.call({
-        listId: this.data.list()._id,
-        newName,
-      }, displayError);
+      updateName.call(
+        {
+          listId: this.data.list()._id,
+          newName,
+        },
+        displayError
+      );
     }
   };
 
@@ -70,10 +71,14 @@ Template.Lists_show.onCreated(function listShowOnCreated() {
     const list = this.data.list();
     const message = `${TAPi18n.__('lists.remove.confirm')} "${list.name}"?`;
 
-    if (confirm(message)) { // eslint-disable-line no-alert
-      remove.call({
-        listId: list._id,
-      }, displayError);
+    if (confirm(message)) {
+      // eslint-disable-line no-alert
+      remove.call(
+        {
+          listId: list._id,
+        },
+        displayError
+      );
 
       FlowRouter.go('App.home');
       return true;
@@ -179,10 +184,13 @@ Template.Lists_show.events({
       return;
     }
 
-    insert.call({
-      listId: this.list()._id,
-      text: $input.val(),
-    }, displayError);
+    insert.call(
+      {
+        listId: this.list()._id,
+        text: $input.val(),
+      },
+      displayError
+    );
 
     $input.val('');
   },

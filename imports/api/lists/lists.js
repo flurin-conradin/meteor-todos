@@ -32,9 +32,15 @@ export const Lists = new ListsCollection('lists');
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Lists.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 Lists.schema = new SimpleSchema({

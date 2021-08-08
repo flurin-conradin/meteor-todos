@@ -63,14 +63,13 @@ Template.App_body.helpers({
     return instance.state.get('userMenuOpen');
   },
   lists() {
-    return Lists.find({ $or: [
-      { userId: { $exists: false } },
-      { userId: Meteor.userId() },
-    ] });
+    return Lists.find({
+      $or: [{ userId: { $exists: false } }, { userId: Meteor.userId() }],
+    });
   },
   activeListClass(list) {
-    const active = ActiveRoute.name('Lists.show')
-      && FlowRouter.getParam('_id') === list._id;
+    const active =
+      ActiveRoute.name('Lists.show') && FlowRouter.getParam('_id') === list._id;
 
     return active && 'active';
   },
@@ -93,7 +92,7 @@ Template.App_body.helpers({
     return _.keys(TAPi18n.getLanguages());
   },
   isActiveLanguage(language) {
-    return (TAPi18n.getLanguage() === language);
+    return TAPi18n.getLanguage() === language;
   },
 });
 
@@ -125,13 +124,16 @@ Template.App_body.events({
       // TODO -- test this code path
       const list = Lists.findOne(FlowRouter.getParam('_id'));
       if (list.userId) {
-        FlowRouter.go('Lists.show', Lists.findOne({ userId: { $exists: false } }));
+        FlowRouter.go(
+          'Lists.show',
+          Lists.findOne({ userId: { $exists: false } })
+        );
       }
     }
   },
 
   'click .js-new-list'() {
-    const listId = insert.call({ language: TAPi18n.getLanguage() }, (err) => {
+    const listId = insert.call({ language: TAPi18n.getLanguage() }, err => {
       if (err) {
         // At this point, we have already redirected to the new list page, but
         // for some reason the list didn't get created. This should almost never

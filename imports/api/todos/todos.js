@@ -31,9 +31,15 @@ export const Todos = new TodosCollection('todos');
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Todos.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 Todos.schema = new SimpleSchema({

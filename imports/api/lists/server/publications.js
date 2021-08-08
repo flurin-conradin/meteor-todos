@@ -5,11 +5,14 @@ import { Meteor } from 'meteor/meteor';
 import { Lists } from '../lists.js';
 
 Meteor.publish('lists.public', function listsPublic() {
-  return Lists.find({
-    userId: { $exists: false },
-  }, {
-    fields: Lists.publicFields,
-  });
+  return Lists.find(
+    {
+      userId: { $exists: false },
+    },
+    {
+      fields: Lists.publicFields,
+    }
+  );
 });
 
 Meteor.publish('lists.private', function listsPrivate() {
@@ -17,9 +20,12 @@ Meteor.publish('lists.private', function listsPrivate() {
     return this.ready();
   }
 
-  return Lists.find({
-    userId: this.userId,
-  }, {
-    fields: Lists.publicFields,
-  });
+  return Lists.find(
+    {
+      userId: this.userId,
+    },
+    {
+      fields: Lists.publicFields,
+    }
+  );
 });
