@@ -2,6 +2,7 @@
   "scripts": {
     "start": "meteor",
     "pretest": "npm run lint --silent",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "test": "TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha",
     "test-app": "TEST_BROWSER_DRIVER=nightmare meteor test --full-app --once --driver-package meteortesting:mocha",
     "test-watch": "TEST_BROWSER_DRIVER=nightmare meteor test --driver-package meteortesting:mocha",
@@ -28,6 +29,7 @@
     "eslint-plugin-meteor": "^4.2.2",
     "eslint-plugin-react": "^6.10.3",
     "nightmare": "^3.0.1",
+    "prettier": "^2.3.2",
     "shell-source": "^1.1.0",
     "shelljs": "^0.7.4"
   },
