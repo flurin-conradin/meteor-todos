@@ -79,7 +79,7 @@ Lists.helpers({
 
     return this.userId === userId;
   },
-  todos() {
-    return Todos.find({ listId: this._id }, { sort: { createdAt: -1 } });
-  },
+  // todos() {
+  //   return Todos.find({ listId: this._id }, { sort: { createdAt: -1 } });
+  // },
 });

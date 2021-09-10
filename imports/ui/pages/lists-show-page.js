@@ -1,5 +1,6 @@
 import { Template } from 'meteor/templating';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { ReactiveVar } from 'meteor/reactive-var';
 
 import { Lists } from '../../api/lists/lists.js';
 
@@ -9,12 +10,24 @@ import './lists-show-page.html';
 // Components used inside the template
 import './app-not-found.js';
 import '../components/lists-show.js';
+import { getTodos, processChange } from '../../startup/client/db.js';
 
 Template.Lists_show_page.onCreated(function listsShowPageOnCreated() {
+  this.todos = new ReactiveVar([]);
   this.getListId = () => FlowRouter.getParam('_id');
 
-  this.autorun(() => {
-    this.subscribe('todos.inList', { listId: this.getListId() });
+  const evtSource = new EventSource('https://localhost:4000/todos');
+  evtSource.onmessage = async event => {
+    await processChange(event.data);
+    const todos = await getTodos(FlowRouter.getParam('_id'));
+    this.todos.set(todos);
+  };
+
+  this.autorun(async () => {
+    const listId = this.getListId();
+    const todos = await getTodos(listId);
+    this.todos.set(todos);
+    // this.subscribe('todos.inList', { listId:  });
   });
 });
 
@@ -39,8 +52,8 @@ Template.Lists_show_page.helpers({
     const instance = Template.instance();
     // By finding the list with only the `_id` field set, we don't create a dependency on the
     // `list.incompleteCount`, and avoid re-rendering the todos when it changes
-    const list = Lists.findOne(listId, { fields: { _id: true } });
-    const todos = list && list.todos();
+    // const list = Lists.findOne(listId, { fields: { _id: true } });
+    // const todos = list && list.todos();
     return {
       todosReady: instance.subscriptionsReady(),
       // We pass `list` (which contains the full list, with all fields, as a function
@@ -51,7 +64,7 @@ Template.Lists_show_page.helpers({
       list() {
         return Lists.findOne(listId);
       },
-      todos,
+      todos: instance.todos.get(),
     };
   },
 });
