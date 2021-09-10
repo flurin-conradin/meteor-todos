@@ -14,15 +14,15 @@ import {
 
 import { displayError } from '../lib/errors.js';
 
-Template.Todos_item.onCreated(function todosItemOnCreated() {
-  this.autorun(() => {
-    new SimpleSchema({
-      todo: { type: Todos._helpers },
-      editing: { type: Boolean, optional: true },
-      onEditingChange: { type: Function },
-    }).validate(Template.currentData());
-  });
-});
+// Template.Todos_item.onCreated(function todosItemOnCreated() {
+//   this.autorun(() => {
+//     new SimpleSchema({
+//       todo: { type: Todos._helpers },
+//       editing: { type: Boolean, optional: true },
+//       onEditingChange: { type: Function },
+//     }).validate(Template.currentData());
+//   });
+// });
 
 Template.Todos_item.helpers({
   checkedClass(todo) {

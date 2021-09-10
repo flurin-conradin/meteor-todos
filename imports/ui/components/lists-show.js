@@ -27,13 +27,13 @@ import { insert } from '../../api/todos/methods.js';
 import { displayError } from '../lib/errors.js';
 
 Template.Lists_show.onCreated(function listShowOnCreated() {
-  this.autorun(() => {
-    new SimpleSchema({
-      list: { type: Function },
-      todosReady: { type: Boolean },
-      todos: { type: Mongo.Cursor },
-    }).validate(Template.currentData());
-  });
+  // this.autorun(() => {
+  //   new SimpleSchema({
+  //     list: { type: Function },
+  //     todosReady: { type: Boolean },
+  //     todos: { type: Array },
+  //   }).validate(Template.currentData());
+  // });
 
   this.state = new ReactiveDict();
   this.state.setDefault({
