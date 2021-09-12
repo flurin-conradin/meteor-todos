@@ -16,12 +16,22 @@ Template.Lists_show_page.onCreated(function listsShowPageOnCreated() {
   this.todos = new ReactiveVar([]);
   this.getListId = () => FlowRouter.getParam('_id');
 
-  const evtSource = new EventSource('https://localhost:4000/todos');
-  evtSource.onmessage = async event => {
-    await processChange(event.data);
-    const todos = await getTodos(FlowRouter.getParam('_id'));
-    this.todos.set(todos);
+  const sub = async () => {
+    const response = await fetch('https://localhost:4000/todos');
+    const reader = response.body
+      .pipeThrough(new TextDecoderStream())
+      .getReader();
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      await processChange(value);
+      const todos = await getTodos(FlowRouter.getParam('_id'));
+      this.todos.set(todos);
+    }
   };
+
+  sub();
 
   this.autorun(async () => {
     const listId = this.getListId();
