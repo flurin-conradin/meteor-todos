@@ -81,7 +81,6 @@ export function getTodos(listId) {
       console.log('all entries here', data);
     }
   };
-  console.log('return');
   return p;
 }
 
@@ -90,18 +89,13 @@ export function getTodos(listId) {
 
 export function processChange(data) {
   return new Promise(async (resolve, reject) => {
-    const d = JSON.parse(data);
-    if (d.operationType == 'insert') {
-      await addData(d.fullDocument);
-    }
+    const docsToInsert = JSON.parse(data);
+    await Promise.all(docsToInsert.map(updateDb));
     resolve();
   });
 }
 
-function addData(item) {
-  // prevent default - we don't want the form to submit in the conventional way
-  // e.preventDefault();
-
+function updateDb(doc) {
   // open a read/write db transaction, ready for adding the data
   let transaction = db.transaction(['todos'], 'readwrite');
 
@@ -110,39 +104,67 @@ function addData(item) {
     console.log('transaction complete');
   };
 
-  transaction.onerror = function () {
-    console.log('transation error');
+  transaction.onerror = function (error) {
+    console.log('transation error', error);
   };
 
   // call an object store that's already been added to the database
   let objectStore = transaction.objectStore('todos');
-  // console.log(objectStore.indexNames);
-  // console.log(objectStore.keyPath);
-  // console.log(objectStore.name);
-  // console.log(objectStore.transaction);
-  // console.log(objectStore.autoIncrement);
 
   // Make a request to add our newItem object to the object store
-  return new Promise((resolve, reject) => {
-    let objectStoreRequest = objectStore.add(item);
-    objectStoreRequest.onsuccess = function (event) {
-      resolve();
-    };
+  return new Promise(async (resolve, reject) => {
+    const opType = doc.operationType;
+    console.log('doc', doc);
+    let request;
+    switch (opType) {
+      case 'insert':
+        request = objectStore.add(doc.fullDocument);
+        request.onsuccess = function (event) {
+          resolve();
+        };
+        request.onerror = function (error) {
+          console.error('delete error', error.srcElement.error.message);
+          resolve();
+        };
+        break;
+
+      case 'delete':
+        request = objectStore.delete(doc.documentKey._id);
+        request.onsuccess = function (event) {
+          resolve();
+        };
+        request.onerror = function (error) {
+          console.error('delete error', error.srcElement.error.message);
+          resolve();
+        };
+        break;
+
+      case 'update':
+        let res;
+        const _p = new Promise((_res, _rej) => {
+          res = _res;
+        });
+        objectStore.openCursor().onsuccess = function (event) {
+          const cursor = event.target.result;
+          if (cursor) {
+            if (cursor.value._id === doc.documentKey._id) {
+              //TODO remove fields
+              let updateData = {
+                ...cursor.value,
+                ...doc.updateDescription.updatedFields,
+              };
+              cursor.update(updateData);
+              res();
+            } else {
+              cursor.continue();
+            }
+          } else {
+            console.warning('could not find item to update');
+            res();
+          }
+        };
+        await _p;
+        resolve();
+    }
   });
-}
-
-function deleteItem(event) {
-  // retrieve the name of the task we want to delete
-  let dataTask = event.target.getAttribute('data-task');
-
-  // open a database transaction and delete the task, finding it by the name we retrieved above
-  let transaction = db.transaction(['toDoList'], 'readwrite');
-  let request = transaction.objectStore('toDoList').delete(dataTask);
-
-  // report that the data item has been deleted
-  transaction.oncomplete = function () {
-    // delete the parent of the button, which is the list item, so it no longer is displayed
-    event.target.parentNode.parentNode.removeChild(event.target.parentNode);
-    note.innerHTML += '<li>Task "' + dataTask + '" deleted.</li>';
-  };
 }
