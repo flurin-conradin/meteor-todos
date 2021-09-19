@@ -89,9 +89,46 @@ export function getTodos(listId) {
 
 export function processChange(data) {
   return new Promise(async (resolve, reject) => {
-    const docsToInsert = JSON.parse(data);
-    await Promise.all(docsToInsert.map(updateDb));
+    console.log('data', data);
+    const obj = JSON.parse(data);
+    if (obj.initialLoad) {
+      await Promise.all(obj.initialLoad.map(insertInitial));
+    } else {
+      await Promise.all(obj.map(updateDb));
+    }
+    console.log('after inserting inistial');
     resolve();
+  });
+}
+
+function insertInitial(doc) {
+  // open a read/write db transaction, ready for adding the data
+  let transaction = db.transaction(['todos'], 'readwrite');
+
+  // report on the success of the transaction completing, when everything is done
+  transaction.oncomplete = function () {
+    console.log('transaction complete');
+  };
+
+  transaction.onerror = function (error) {
+    console.log('transation error', error);
+  };
+
+  // call an object store that's already been added to the database
+  let objectStore = transaction.objectStore('todos');
+
+  return new Promise(async (resolve, reject) => {
+    request = objectStore.add(doc);
+    request.onsuccess = function (event) {
+      resolve();
+    };
+    request.onerror = function (error) {
+      console.error(
+        'initial load insert error',
+        error.srcElement.error.message
+      );
+      resolve();
+    };
   });
 }
 
@@ -123,7 +160,7 @@ function updateDb(doc) {
           resolve();
         };
         request.onerror = function (error) {
-          console.error('delete error', error.srcElement.error.message);
+          console.error('insert error', error.srcElement.error.message);
           resolve();
         };
         break;

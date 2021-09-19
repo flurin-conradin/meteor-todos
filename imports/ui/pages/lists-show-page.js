@@ -12,6 +12,12 @@ import './app-not-found.js';
 import '../components/lists-show.js';
 import { getTodos, processChange } from '../../startup/client/db.js';
 
+const coerceToJson = value => {
+  console.log(value.startsWith('{"initialLoad'));
+  if (value.startsWith('{"initialLoad')) return value;
+  return `[${value.replace(/}{/g, '},{')}]`;
+};
+
 Template.Lists_show_page.onCreated(function listsShowPageOnCreated() {
   this.todos = new ReactiveVar([]);
   this.getListId = () => FlowRouter.getParam('_id');
@@ -22,10 +28,10 @@ Template.Lists_show_page.onCreated(function listsShowPageOnCreated() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        resumeToken:
-          '82614711F0000000012B022C0100296E5A1004030F6E3C6A7B49CCAA8BA346D143F5F546645F6964006461470F918CB489077A9092FA0004',
-      }),
+      // body: JSON.stringify({
+      //   resumeToken:
+      //     '82614711F0000000012B022C0100296E5A1004030F6E3C6A7B49CCAA8BA346D143F5F546645F6964006461470F918CB489077A9092FA0004',
+      // }),
     });
     const reader = response.body
       .pipeThrough(new TextDecoderStream())
@@ -33,9 +39,10 @@ Template.Lists_show_page.onCreated(function listsShowPageOnCreated() {
 
     while (true) {
       const { value, done } = await reader.read();
-      console.info('done', done); // never happens
+      console.info('done', value); // never happens
       if (done) break;
-      await processChange(`[${value.replace(/}{/g, '},{')}]`);
+      await processChange(coerceToJson(value));
+      console.log('after process');
       const todos = await getTodos(FlowRouter.getParam('_id'));
       this.todos.set(todos);
     }
