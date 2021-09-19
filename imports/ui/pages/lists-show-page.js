@@ -25,7 +25,7 @@ Template.Lists_show_page.onCreated(function listsShowPageOnCreated() {
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
-      await processChange(value);
+      await processChange(`[${value.replace(/}{/g, '},{')}]`);
       const todos = await getTodos(FlowRouter.getParam('_id'));
       this.todos.set(todos);
     }
