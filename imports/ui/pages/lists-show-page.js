@@ -17,13 +17,23 @@ Template.Lists_show_page.onCreated(function listsShowPageOnCreated() {
   this.getListId = () => FlowRouter.getParam('_id');
 
   const sub = async () => {
-    const response = await fetch('https://localhost:4000/todos');
+    const response = await fetch('https://localhost:4000/todos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        resumeToken:
+          '82614711F0000000012B022C0100296E5A1004030F6E3C6A7B49CCAA8BA346D143F5F546645F6964006461470F918CB489077A9092FA0004',
+      }),
+    });
     const reader = response.body
       .pipeThrough(new TextDecoderStream())
       .getReader();
 
     while (true) {
       const { value, done } = await reader.read();
+      console.info('done', done); // never happens
       if (done) break;
       await processChange(`[${value.replace(/}{/g, '},{')}]`);
       const todos = await getTodos(FlowRouter.getParam('_id'));
